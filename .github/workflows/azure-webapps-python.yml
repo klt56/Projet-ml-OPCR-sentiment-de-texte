@@ -1,13 +1,15 @@
 name: Build and deploy Python app to Azure Web App
 
-env:
-  AZURE_WEBAPP_NAME: rg-airparadis-hkc3bkbwg0gsbccd
-  PYTHON_VERSION: "3.10"
-
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+
+env:
+  # ✅ Nom exact de ta Web App (msdeploySite="rg-airparadis")
+  AZURE_WEBAPP_NAME: rg-airparadis
+  # ✅ Version Python utilisée pour le build/tests
+  PYTHON_VERSION: "3.10"
 
 permissions:
   contents: read
@@ -16,7 +18,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,6 +32,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # ✅ Obligatoire selon ton énoncé : exécuter les tests unitaires au build
       - name: Run unit tests
         run: |
           python -m unittest discover -s tests -p "test*.py"
@@ -37,9 +41,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            .
-            !.git/
+          path: .
+          if-no-files-found: error
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,13 +51,14 @@ jobs:
       contents: none
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: python-app
           path: .
 
       - name: Deploy to Azure Web App
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
