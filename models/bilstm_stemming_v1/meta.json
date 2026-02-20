@@ -1,0 +1,11 @@
+{
+  "model": "BiLSTM",
+  "preprocess": "stemming + stopwords (negations kept)",
+  "input": "string",
+  "output": "sigmoid proba_pos",
+  "label_mapping": {
+    "0": "negative",
+    "1": "positive"
+  },
+  "version": "v1"
+}

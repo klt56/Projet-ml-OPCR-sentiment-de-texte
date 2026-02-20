@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+
+# Virtual env
+.venv/
+.venv*/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Test / tooling cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS / IDE
+.vscode/
+.idea/
+.DS_Store
