@@ -8,13 +8,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# URL Azure par défaut
-DEFAULT_API_URL = "https://rg-airparadis-hkc3bkbwg0gsbccd.westeurope-01.azurewebsites.net"
-
-# Permet d'écraser l'URL via Streamlit secrets plus tard si besoin
-API_URL_FROM_SECRETS = st.secrets.get("API_URL", DEFAULT_API_URL)
-
-# Timeout un peu large pour éviter les faux timeouts si Azure est lent à répondre
+API_URL = "https://rg-airparadis-hkc3bkbwg0gsbccd.westeurope-01.azurewebsites.net"
 TIMEOUT = 120
 
 st.title("Air Paradis - Interface de test de l'API")
@@ -22,7 +16,6 @@ st.write(
     "Saisissez un texte, lancez la prédiction, puis validez ou non le résultat."
 )
 
-# État Streamlit
 if "prediction_data" not in st.session_state:
     st.session_state.prediction_data = None
 
@@ -81,19 +74,18 @@ def safe_post(url: str, payload: dict):
         }
 
 
-api_url = st.text_input("URL de l'API", value=API_URL_FROM_SECRETS)
 text = st.text_area("Texte à analyser", value="the trip was bad", height=180)
 
 col_a, col_b = st.columns(2)
 
 with col_a:
     if st.button("Tester /"):
-        result = safe_get(f"{api_url}/")
+        result = safe_get(f"{API_URL}/")
         st.session_state.last_root = result
 
 with col_b:
     if st.button("Tester /health"):
-        result = safe_get(f"{api_url}/health")
+        result = safe_get(f"{API_URL}/health")
         st.session_state.last_health = result
 
 st.subheader("État de l'API")
@@ -140,7 +132,7 @@ if st.button("Analyser"):
         st.warning("Veuillez saisir un texte.")
     else:
         payload = {"text": text}
-        result = safe_post(f"{api_url}/predict", payload)
+        result = safe_post(f"{API_URL}/predict", payload)
 
         if result["ok"]:
             if result["status_code"] == 200 and isinstance(result["data"], dict):
@@ -194,7 +186,7 @@ if st.session_state.prediction_data:
                 "predicted_proba": pred["proba_pos"],
                 "user_validated": True,
             }
-            result = safe_post(f"{api_url}/feedback", payload)
+            result = safe_post(f"{API_URL}/feedback", payload)
 
             if result["ok"]:
                 if result["status_code"] == 200:
@@ -215,7 +207,7 @@ if st.session_state.prediction_data:
                 "predicted_proba": pred["proba_pos"],
                 "user_validated": False,
             }
-            result = safe_post(f"{api_url}/feedback", payload)
+            result = safe_post(f"{API_URL}/feedback", payload)
 
             if result["ok"]:
                 if result["status_code"] == 200:
